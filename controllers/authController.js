@@ -75,7 +75,7 @@ exports.register = async (req, res) => {
     await sendEmail(
       email,
       "Verifikacija naloga",
-      `Kliknite na link za verifikaciju: http://localhost:5000/api/auth/verify/${verificationToken}`
+      `Kliknite na link za verifikaciju: https://onlinebiskop-production.up.railway.app/api/auth/verify/${verificationToken}`
     );
 
     res.status(201).json({
