@@ -1,28 +1,23 @@
 const mongoose = require("mongoose");
 
-const ticketSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    movieId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Movie",
-      required: true,
-    },
-    cinemaId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Cinema",
-      required: true,
-    },
-    showtime: { type: String, required: true },
-    seats: [{ row: Number, number: Number }],
-    status: { type: String, enum: ["active", "used"], default: "active" },
+const TicketSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  movieId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Movie",
+    required: true,
   },
-  { timestamps: true }
-);
+  cinemaId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Cinema",
+    required: true,
+  },
+  showtime: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Showtime",
+    required: true,
+  }, // ✅ Popravljeno: ObjectId umesto Date
+  seats: { type: [Number], required: true },
+});
 
-const Ticket = mongoose.model("Ticket", ticketSchema);
-module.exports = Ticket;
+module.exports = mongoose.model("Ticket", TicketSchema);

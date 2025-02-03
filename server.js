@@ -11,6 +11,7 @@ const movieRoutes = require("./routes/movieRoutes");
 const cinemaRoutes = require("./routes/cinemaRoutes");
 const ticketRoutes = require("./routes/ticketRoutes");
 const ratingRoutes = require("./routes/ratingRoutes");
+const showtimeRoutes = require("./routes/showtimeRoutes");
 
 // 📌 Učitavanje konfiguracije iz .env fajla
 dotenv.config();
@@ -36,6 +37,7 @@ app.use("/api/movies", movieRoutes);
 app.use("/api/cinemas", cinemaRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/ratings", ratingRoutes);
+app.use("/api/showtimes", showtimeRoutes);
 app.use("/uploads", express.static("uploads"));
 
 // 📌 Startovanje servera

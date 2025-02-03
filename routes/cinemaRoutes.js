@@ -5,7 +5,7 @@ const {
   authMiddleware,
   protectAdmin,
 } = require("../middleware/authMiddleware");
-
+module.exports = Movie;
 const router = express.Router();
 
 // ✅ Dohvati sve bioskope
@@ -51,7 +51,12 @@ router.put(
     try {
       const { movieId, showtimes } = req.body;
 
-      // ✅ Proveri da li film postoji u bazi
+      if (!movieId || !showtimes || !Array.isArray(showtimes)) {
+        return res
+          .status(400)
+          .json({ message: "Neispravni podaci za bioskop" });
+      }
+
       const movie = await Movie.findById(movieId);
       if (!movie) {
         return res.status(404).json({ message: "Film nije pronađen u bazi!" });
@@ -62,33 +67,25 @@ router.put(
         return res.status(404).json({ message: "Bioskop nije pronađen" });
       }
 
-      // ✅ Proveri da li film već postoji u bioskopu
-      const existingMovie = cinema.movies.find(
-        (m) => m.movieId.toString() === movieId
-      );
-      if (existingMovie) {
-        return res
-          .status(400)
-          .json({ message: "Film je već dodat u ovaj bioskop" });
-      }
-
-      // ✅ Dodaj film u bioskop
       cinema.movies.push({ movieId, showtimes, seats: [] });
       await cinema.save();
 
-      // ✅ Ažuriraj `Movie` kolekciju da sadrži referencu na bioskop
-      if (!movie.cinemas.includes(cinema._id)) {
-        movie.cinemas.push(cinema._id);
-        await movie.save(); // Sačuvaj ažurirani film
-      }
+      movie.cinemas.push({ cinemaId: cinema._id, showtimes });
+      await movie.save();
 
-      res.json({ message: "Film dodat u bioskop i ažuriran!", cinema, movie });
+      res.json({
+        message: "Film dodat u bioskop sa terminima!",
+        cinema,
+        movie,
+      });
     } catch (error) {
       console.error("Greška pri dodavanju filma u bioskop:", error);
       res.status(500).json({ message: "Greška pri dodavanju filma u bioskop" });
     }
   }
 );
+
+module.exports = router;
 
 router.delete("/:cinemaId", authMiddleware, protectAdmin, async (req, res) => {
   try {
@@ -102,6 +99,39 @@ router.delete("/:cinemaId", authMiddleware, protectAdmin, async (req, res) => {
   } catch (error) {
     console.error("Greška pri brisanju bioskopa:", error);
     res.status(500).json({ message: "Greška pri brisanju bioskopa" });
+  }
+});
+
+router.get("/:cinemaId/movies/:showtime", async (req, res) => {
+  const { cinemaId, showtime } = req.params;
+  console.log("📌 Backend primio:", { cinemaId, showtime });
+
+  try {
+    const cinema = await Cinema.findById(cinemaId).populate("movies.movieId");
+    if (!cinema) {
+      console.error("❌ Bioskop nije pronađen!");
+      return res.status(404).json({ message: "Bioskop nije pronađen!" });
+    }
+
+    const movieEntry = cinema.movies.find((m) =>
+      m.showtimes.includes(showtime)
+    );
+
+    if (!movieEntry) {
+      console.error("❌ Film nije pronađen u ovom bioskopu!");
+      return res
+        .status(404)
+        .json({ message: "Film nije pronađen u ovom bioskopu!" });
+    }
+
+    const movie = await Movie.findById(movieEntry.movieId); // Učitaj ceo film
+
+    console.log("📌 API vraća film:", movie); // ✅ Provera da li postoji `image`
+
+    res.json({ movie, cinema });
+  } catch (error) {
+    console.error("❌ Greška pri dohvatanju filma u bioskopu:", error);
+    res.status(500).json({ message: "Greška na serveru" });
   }
 });
 

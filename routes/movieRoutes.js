@@ -1,6 +1,8 @@
 const express = require("express");
 const multer = require("multer");
 const Movie = require("../models/Movie");
+const Cinema = require("../models/Cinema");
+
 const {
   authMiddleware,
   protectAdmin,
@@ -33,7 +35,10 @@ router.get("/", async (req, res) => {
     }
 
     if (search) {
-      filter.title = { $regex: search, $options: "i" }; // Case insensitive pretraga
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } }, // ✅ Pretraga po naslovu
+        { director: { $regex: search, $options: "i" } }, // ✅ Pretraga po režiseru
+      ];
     }
 
     const movies = await Movie.find(filter)
@@ -66,11 +71,36 @@ router.get("/category/:category", async (req, res) => {
  */
 router.get("/:id", async (req, res) => {
   try {
-    const movie = await Movie.findById(req.params.id);
+    const movie = await Movie.findById(req.params.id).lean();
     if (!movie) return res.status(404).json({ message: "Film nije pronađen" });
-    res.json(movie);
+
+    console.log("📌 Film pronađen:", movie);
+
+    // 🔍 Pronađi bioskope u kojima se prikazuje ovaj film
+    const cinemas = await Cinema.find({ "movies.movieId": movie._id }).lean();
+
+    console.log("📌 Pronađeni bioskopi:", cinemas);
+
+    // 🎬 Formatiranje bioskopa sa terminima
+    const formattedCinemas = cinemas.map((cinema) => {
+      const movieData = cinema.movies.find(
+        (m) => m.movieId.toString() === movie._id.toString()
+      );
+
+      return {
+        _id: cinema._id,
+        name: cinema.name,
+        location: cinema.location,
+        showtimes: movieData ? movieData.showtimes : [], // ✅ Ovo osigurava da uzmemo termine
+      };
+    });
+
+    console.log("📌 Formatirani bioskopi sa terminima:", formattedCinemas);
+
+    res.json({ ...movie, cinemas: formattedCinemas });
   } catch (error) {
-    res.status(500).json({ message: "Greška pri dohvatanju filma" });
+    console.error("❌ Greška pri učitavanju filma:", error);
+    res.status(500).json({ message: "Greška pri učitavanju filma" });
   }
 });
 
@@ -205,6 +235,31 @@ router.delete("/:id", authMiddleware, protectAdmin, async (req, res) => {
     res.json({ message: "Film uspešno obrisan" });
   } catch (error) {
     res.status(500).json({ message: "Greška pri brisanju filma" });
+  }
+});
+
+router.post("/:movieId/rate", authMiddleware, async (req, res) => {
+  try {
+    const { movieId } = req.params;
+    const { rating } = req.body;
+
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Ocena mora biti između 1 i 5" });
+    }
+
+    const movie = await Movie.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({ message: "Film nije pronađen!" });
+    }
+
+    movie.votes += 1;
+    movie.rating = (movie.rating * (movie.votes - 1) + rating) / movie.votes;
+    await movie.save();
+
+    res.json({ message: "Ocena sačuvana!", newRating: movie.rating });
+  } catch (error) {
+    console.error("Greška pri ocenjivanju filma:", error);
+    res.status(500).json({ message: "Greška na serveru!" });
   }
 });
 

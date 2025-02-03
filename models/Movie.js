@@ -16,9 +16,9 @@ const movieSchema = new mongoose.Schema(
     cinemas: [
       {
         cinemaId: { type: mongoose.Schema.Types.ObjectId, ref: "Cinema" },
-        showtimes: [String], // Lista termina za film u tom bioskopu
+        showtimes: [{ type: String, required: true }],
       },
-    ], // 📌 Novo polje
+    ],
   },
   { timestamps: true }
 );

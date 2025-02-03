@@ -6,12 +6,12 @@ const cinemaSchema = new mongoose.Schema(
     location: { type: String, required: true },
     movies: [
       {
-        movieId: { type: mongoose.Schema.Types.ObjectId, ref: "Movie" },
-        showtimes: [String], // Lista termina (npr. ["18:00", "20:30"])
+        movieId: { type: mongoose.Schema.Types.ObjectId, ref: "Movie" }, // Referenca na Movie model
+        showtimes: [{ type: String, required: true }], // Datum i vreme (YYYY-MM-DD HH:mm)
         seats: [
           {
-            row: Number,
-            number: Number,
+            row: { type: Number, required: true },
+            number: { type: Number, required: true },
             isReserved: { type: Boolean, default: false },
           },
         ],
@@ -21,5 +21,6 @@ const cinemaSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Cinema = mongoose.model("Cinema", cinemaSchema);
+const Cinema = mongoose.models.Cinema || mongoose.model("Cinema", cinemaSchema);
+
 module.exports = Cinema;

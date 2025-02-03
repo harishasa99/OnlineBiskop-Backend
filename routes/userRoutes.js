@@ -5,6 +5,9 @@ const {
   updateUser,
   changePassword,
   deleteUser,
+  getFavouriteMovies,
+  addFavouriteMovie,
+  removeFavouriteMovie,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -25,5 +28,8 @@ router.get("/me", authMiddleware, getUser);
 router.put("/update", authMiddleware, updateUser);
 router.put("/change-password", authMiddleware, changePassword);
 router.delete("/delete", authMiddleware, deleteUser);
+router.get("/favourites", authMiddleware, getFavouriteMovies);
+router.post("/favourites", authMiddleware, addFavouriteMovie);
+router.delete("/favourites/:movieId", authMiddleware, removeFavouriteMovie);
 
 module.exports = router;

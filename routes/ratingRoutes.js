@@ -1,34 +1,37 @@
 const express = require("express");
-const Rating = require("../models/Rating");
-const Movie = require("../models/Movie");
 const { authMiddleware } = require("../middleware/authMiddleware");
+const Movie = require("../models/Movie");
 
 const router = express.Router();
 
-// ⭐ Ocenjivanje filma
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const { movieId, rating } = req.body;
-    const newRating = new Rating({
-      user: req.user._id,
-      movie: movieId,
-      rating,
-    });
-    await newRating.save();
+    const userId = req.user._id; // Dobijamo user ID iz tokena
 
-    // Ažuriraj prosečnu ocenu filma
-    const ratings = await Rating.find({ movie: movieId });
-    const avgRating =
-      ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length;
+    if (!movieId || !rating) {
+      return res.status(400).json({ message: "Nedostaju podaci za ocenu!" });
+    }
 
-    await Movie.findByIdAndUpdate(movieId, {
-      rating: avgRating,
-      votes: ratings.length,
-    });
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Ocena mora biti između 1 i 5!" });
+    }
 
-    res.status(201).json({ message: "Ocena sačuvana!", avgRating });
+    const movie = await Movie.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({ message: "Film nije pronađen!" });
+    }
+
+    // Prosečna ocena = (trenutna_ocena * broj_glasova + nova_ocena) / (broj_glasova + 1)
+    movie.votes += 1;
+    movie.rating = (movie.rating * (movie.votes - 1) + rating) / movie.votes;
+
+    await movie.save();
+
+    res.json({ message: "Ocena sačuvana!", newRating: movie.rating });
   } catch (error) {
-    res.status(500).json({ message: "Greška pri ocenjivanju" });
+    console.error("❌ Greška pri ocenjivanju filma:", error);
+    res.status(500).json({ message: "Greška na serveru!" });
   }
 });
 
