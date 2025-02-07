@@ -9,12 +9,6 @@ router.get("/:showtimeId/seats", async (req, res) => {
     const { showtimeId } = req.params;
     console.log("🔍 Primljen showtimeId:", showtimeId);
 
-    // ✅ Proveravamo da li je validan MongoDB ObjectId
-    if (!showtimeId.match(/^[0-9a-fA-F]{24}$/)) {
-      console.error("❌ Neispravan format ID-a:", showtimeId);
-      return res.status(400).json({ message: "Neispravan ID formata!" });
-    }
-
     // ✅ Tražimo showtime direktno po `_id`
     const showtime = await Showtime.findById(showtimeId);
     if (!showtime) {
