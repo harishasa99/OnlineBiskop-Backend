@@ -4,13 +4,28 @@ const Showtime = require("../models/Showtime");
 const router = express.Router();
 
 // 🎭 Dohvatanje dostupnih sedišta za određeni termin
-router.get("/:showtimeId/seats", async (req, res) => {
+router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
   try {
-    const { showtimeId } = req.params;
-    console.log("🔍 Primljen showtimeId:", showtimeId);
 
-    // ✅ Tražimo showtime direktno po `_id`
-    const showtime = await Showtime.findById(showtimeId);
+    const { showtimeId, movieId, cinemaId } = req.params;
+    console.log("🎭 Showtime ID:", showtimeId);
+    console.log("🎬 Movie ID:", movieId);
+    console.log("🏛 Cinema ID:", cinemaId);
+
+    // ✅ Validate IDs if using MongoDB
+    if (
+        !mongoose.Types.ObjectId.isValid(movieId) ||
+        !mongoose.Types.ObjectId.isValid(cinemaId)) {
+      return res.status(400).json({ message: "Nevalidni cinemaId i movieId." });
+    }
+
+    // ✅ Fetch showtime by matching all parameters
+    const showtime = await Showtime.findOne({
+      datetime: showtimeId,
+      movie: movieId,
+      cinema: cinemaId
+    });
+
     if (!showtime) {
       console.error("❌ Termin nije pronađen u bazi!");
       return res.status(404).json({ message: "Termin nije pronađen!" });
