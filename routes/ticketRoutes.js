@@ -19,7 +19,7 @@ const purchaseTicket = async (req, res) => {
 
     let existingShowtime = await Showtime.findOne({
       cinema: cinemaId,
-      datetime: new Date(showtime),
+      datetime: showtime,
     });
 
     if (!existingShowtime) {
@@ -27,7 +27,7 @@ const purchaseTicket = async (req, res) => {
       existingShowtime = await Showtime.create({
         movie: movieId,
         cinema: cinemaId,
-        datetime: new Date(showtime),
+        datetime: showtime,
         bookedSeats: [],
       });
 
