@@ -12,7 +12,7 @@ const showtimeSchema = new mongoose.Schema(
       ref: "Cinema",
       required: true,
     },
-    datetime: { type: Date, required: true },
+    datetime: { type: String, required: true },
     bookedSeats: [{ type: Number, default: [] }], // Lista rezervisanih sedišta
   },
   { timestamps: true }
