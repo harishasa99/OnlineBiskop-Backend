@@ -15,15 +15,10 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
     console.log("🏛 Cinema ID:", cinemaId);
 
     // ✅ Fetch showtime by matching all parameters
-    const showtime = await Showtime.findOne({
-      $and: [
-        {datetime: showtimeId},
-        {movie: new mongoose.Types.ObjectId("67a20833611c5b6f9a4483ba")},
-        {cinema: new mongoose.Types.ObjectId("67a22861611c5b6f9a4484e2")}
-      ]
-    }).lean();
+    const showtime = await Showtime.find({ datetime: showtimeId })
+    const showtimeItem = showtime.filter(item => item.movie == movieId && item.cinema == cinemaId)[0]
 
-    if (!showtime) {
+    if (!showtimeItem) {
       console.error("❌ Termin nije pronađen u bazi!");
       return res.status(404).json({ message: "Termin nije pronađen!" });
     }
