@@ -12,13 +12,6 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
     console.log("🎬 Movie ID:", movieId);
     console.log("🏛 Cinema ID:", cinemaId);
 
-    // ✅ Validate IDs if using MongoDB
-    if (
-        !mongoose.Types.ObjectId.isValid(movieId) ||
-        !mongoose.Types.ObjectId.isValid(cinemaId)) {
-      return res.status(400).json({ message: "Nevalidni cinemaId i movieId." });
-    }
-
     // ✅ Fetch showtime by matching all parameters
     const showtime = await Showtime.findOne({
       datetime: showtimeId,
