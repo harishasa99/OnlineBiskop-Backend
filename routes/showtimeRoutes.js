@@ -2,6 +2,7 @@ const express = require("express");
 const Showtime = require("../models/Showtime");
 
 const router = express.Router();
+const mongoose = require('mongoose');
 
 // 🎭 Dohvatanje dostupnih sedišta za određeni termin
 router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
@@ -9,12 +10,17 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
 
     const { showtimeId, movieId, cinemaId } = req.params;
     console.log("🎭 Showtime ID:", showtimeId);
-    // console.log("🎬 Movie ID:", movieId);
-    // console.log("🏛 Cinema ID:", cinemaId);
+    console.log("🎬 Movie ID:", movieId);
+    console.log("🏛 Cinema ID:", cinemaId);
+
+    const movieObjectId = mongoose.Types.ObjectId(movieId);
+    const cinemaObjectId = mongoose.Types.ObjectId(cinemaId);
 
     // ✅ Fetch showtime by matching all parameters
     const showtime = await Showtime.findOne({
       datetime: showtimeId,
+      movie: movieObjectId,
+      cinema: cinemaObjectId
     }).lean();
 
     if (!showtime) {
