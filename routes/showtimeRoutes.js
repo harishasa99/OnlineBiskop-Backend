@@ -20,7 +20,7 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
     // ✅ Fetch showtime by matching all parameters
     const showtime = await Showtime.findOne({
       "datetime": showtimeId,
-      // "movie": { _id: new mongoose.Types.ObjectId(movieId) },
+      "movie": { _id: new mongoose.Types.ObjectId(movieId) },
       // "cinema": { _id: new mongoose.Types.ObjectId(cinemaId) }
     }).lean();
 
