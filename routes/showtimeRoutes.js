@@ -23,11 +23,11 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
       return res.status(404).json({ message: "Termin nije pronađen!" });
     }
 
-    console.log("✅ Termin pronađen:", showtime);
+    console.log("✅ Termin pronađen:", showtimeItem);
 
     res.json({
-      availableSeats: getAvailableSeats(showtime),
-      bookedSeats: showtime.bookedSeats,
+      availableSeats: getAvailableSeats(showtimeItem),
+      bookedSeats: showtimeItem.bookedSeats,
     });
   } catch (error) {
     console.error("❌ Greška pri dohvatanju sedišta:", error);
