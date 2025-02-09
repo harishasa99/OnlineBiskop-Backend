@@ -19,7 +19,7 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
       $and: [
         {datetime: showtimeId},
         {movie: new mongoose.Types.ObjectId("67a20833611c5b6f9a4483ba")},
-        {cinema: new mongoose.Types.ObjectId("7a22861611c5b6f9a4484e2")}
+        {cinema: new mongoose.Types.ObjectId("67a22861611c5b6f9a4484e2")}
       ]
     }).lean();
 
