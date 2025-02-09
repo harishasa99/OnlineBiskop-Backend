@@ -17,7 +17,7 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
       datetime: showtimeId,
       movie: movieId,
       cinema: cinemaId
-    });
+    }).lean();
 
     if (!showtime) {
       console.error("❌ Termin nije pronađen u bazi!");
