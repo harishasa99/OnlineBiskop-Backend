@@ -3,6 +3,8 @@ const Showtime = require("../models/Showtime");
 
 const router = express.Router();
 
+var mongoose = require('mongoose');
+
 // 🎭 Dohvatanje dostupnih sedišta za određeni termin
 router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
   try {
@@ -12,11 +14,14 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
     console.log("🎬 Movie ID:", movieId);
     console.log("🏛 Cinema ID:", cinemaId);
 
+    console.log(mongoose.Types.ObjectId.isValid(movieId));
+    console.log(mongoose.Types.ObjectId.isValid(cinemaId));
+
     // ✅ Fetch showtime by matching all parameters
     const showtime = await Showtime.findOne({
       "datetime": showtimeId,
-      "movie": { _id: movieId },
-      "cinema": { _id: cinemaId }
+      "movie": { _id: mongoose.Types.ObjectId(movieId) },
+      "cinema": { _id: mongoose.Types.ObjectId(cinemaId) }
     }).lean();
 
     if (!showtime) {
