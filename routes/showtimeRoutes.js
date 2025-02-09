@@ -18,8 +18,8 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
     const showtime = await Showtime.findOne({
       $and: [
         {datetime: showtimeId},
-        {movie: "67a20833611c5b6f9a4483ba"},
-        {cinema: "7a22861611c5b6f9a4484e2"}
+        {movie: new mongoose.Types.ObjectId("67a20833611c5b6f9a4483ba")},
+        {cinema: new mongoose.Types.ObjectId("7a22861611c5b6f9a4484e2")}
       ]
     }).lean();
 
