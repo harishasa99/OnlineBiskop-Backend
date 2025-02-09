@@ -14,11 +14,8 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
     console.log("🎬 Movie ID:", movieId);
     console.log("🏛 Cinema ID:", cinemaId);
 
-    console.log(mongoose.Types.ObjectId.isValid(movieId));
-    console.log(mongoose.Types.ObjectId.isValid(cinemaId));
-
     // ✅ Fetch showtime by matching all parameters
-    const showtime = await Showtime.findOne({
+    const showtime = await Showtime.find({
       $and: [
         {datetime: showtimeId},
         {movie: movieId},
