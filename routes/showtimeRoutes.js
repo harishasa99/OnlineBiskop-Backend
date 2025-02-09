@@ -2,7 +2,6 @@ const express = require("express");
 const Showtime = require("../models/Showtime");
 
 const router = express.Router();
-const mongoose = require('mongoose');
 
 // 🎭 Dohvatanje dostupnih sedišta za određeni termin
 router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
@@ -13,15 +12,12 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
     console.log("🎬 Movie ID:", movieId);
     console.log("🏛 Cinema ID:", cinemaId);
 
-    const movieObjectId = new mongoose.Types.ObjectId(movieId);
-    const cinemaObjectId = new mongoose.Types.ObjectId(cinemaId);
-
     // ✅ Fetch showtime by matching all parameters
     const showtime = await Showtime.findOne({
       datetime: showtimeId,
-      movie: movieObjectId,
-      cinema: cinemaObjectId
-    }).lean();
+      movie: movieId,
+      cinema: cinemaId
+    }).populate('movie').populate('cinema').lean();
 
     if (!showtime) {
       console.error("❌ Termin nije pronađen u bazi!");
