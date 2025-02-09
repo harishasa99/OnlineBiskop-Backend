@@ -9,14 +9,12 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
 
     const { showtimeId, movieId, cinemaId } = req.params;
     console.log("🎭 Showtime ID:", showtimeId);
-    console.log("🎬 Movie ID:", movieId);
-    console.log("🏛 Cinema ID:", cinemaId);
+    // console.log("🎬 Movie ID:", movieId);
+    // console.log("🏛 Cinema ID:", cinemaId);
 
     // ✅ Fetch showtime by matching all parameters
     const showtime = await Showtime.findOne({
-     
-      movie: movieId,
-      cinema: cinemaId
+      datetime: showtimeId,
     }).lean();
 
     if (!showtime) {
