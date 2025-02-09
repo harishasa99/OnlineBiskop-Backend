@@ -14,14 +14,14 @@ router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
     console.log("🎬 Movie ID:", movieId);
     console.log("🏛 Cinema ID:", cinemaId);
 
-    console.log(mongoose.Types.ObjectId.isValid(movieId));
-    console.log(mongoose.Types.ObjectId.isValid(cinemaId));
+    console.log(mongoose.Types.Schema.ObjectId.isValid(movieId));
+    console.log(mongoose.Types.Schema.ObjectId.isValid(cinemaId));
 
     // ✅ Fetch showtime by matching all parameters
     const showtime = await Showtime.findOne({
       "datetime": showtimeId,
-      "movie": { _id: mongoose.Types.ObjectId(movieId) },
-      "cinema": { _id: mongoose.Types.ObjectId(cinemaId) }
+      "movie": { _id: mongoose.Schema.Types.ObjectId(movieId) },
+      "cinema": { _id: mongoose.Schema.Types.ObjectId(cinemaId) }
     }).lean();
 
     if (!showtime) {
