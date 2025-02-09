@@ -4,19 +4,19 @@ const Showtime = require("../models/Showtime");
 const router = express.Router();
 
 // 🎭 Dohvatanje dostupnih sedišta za određeni termin
-router.get("/:datetime/:movieId/:cinemaId/seats", async (req, res) => {
+router.get("/:datetime/:movie/:cinema/seats", async (req, res) => {
   try {
 
-    const { datetime, movieId, cinemaId } = req.params;
+    const { datetime, movie, cinema } = req.params;
     console.log("🎭 Showtime ID / datetime:", datetime);
-    console.log("🎬 Movie ID:", movieId);
-    console.log("🏛 Cinema ID:", cinemaId);
+    console.log("🎬 Movie ID:", movie);
+    console.log("🏛 Cinema ID:", cinema);
 
     // ✅ Fetch showtime by matching all parameters
     const showtime = await Showtime.findOne({
       datetime,
-      movieId,
-      cinemaId
+      movie,
+      cinema
     }).lean();
 
     if (!showtime) {
