@@ -4,20 +4,20 @@ const Showtime = require("../models/Showtime");
 const router = express.Router();
 
 // 🎭 Dohvatanje dostupnih sedišta za određeni termin
-router.get("/:showtimeId/:movieId/:cinemaId/seats", async (req, res) => {
+router.get("/:datetime/:movieId/:cinemaId/seats", async (req, res) => {
   try {
 
-    const { showtimeId, movieId, cinemaId } = req.params;
-    console.log("🎭 Showtime ID:", showtimeId);
+    const { datetime, movieId, cinemaId } = req.params;
+    console.log("🎭 Showtime ID / datetime:", datetime);
     console.log("🎬 Movie ID:", movieId);
     console.log("🏛 Cinema ID:", cinemaId);
 
     // ✅ Fetch showtime by matching all parameters
     const showtime = await Showtime.findOne({
-      datetime: showtimeId,
-      movie: movieId,
-      cinema: cinemaId
-    }).populate('movie').populate('cinema').lean();
+      datetime,
+      movieId,
+      cinemaId
+    }).lean();
 
     if (!showtime) {
       console.error("❌ Termin nije pronađen u bazi!");
