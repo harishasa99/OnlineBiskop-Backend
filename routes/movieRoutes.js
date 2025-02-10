@@ -228,38 +228,46 @@ router.put(
  * ✅ Brisanje filma
  */
 router.delete("/:id", authMiddleware, protectAdmin, async (req, res) => {
+  const { id } = req.params;
+  const session = await mongoose.startSession(); // Start transaction
+  session.startTransaction();
+
   try {
-    const movie = await Movie.findByIdAndDelete(req.params.id);
-    if (!movie) return res.status(404).json({ message: "Film nije pronađen" });
-
-    res.json({ message: "Film uspešno obrisan" });
-  } catch (error) {
-    res.status(500).json({ message: "Greška pri brisanju filma" });
-  }
-});
-
-router.post("/:movieId/rate", authMiddleware, async (req, res) => {
-  try {
-    const { movieId } = req.params;
-    const { rating } = req.body;
-
-    if (rating < 1 || rating > 5) {
-      return res.status(400).json({ message: "Ocena mora biti između 1 i 5" });
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Neispravan ID formata" });
     }
 
-    const movie = await Movie.findById(movieId);
+    // Find and delete the movie
+    const movie = await Movie.findByIdAndDelete(id, { session });
     if (!movie) {
-      return res.status(404).json({ message: "Film nije pronađen!" });
+      await session.abortTransaction();
+      return res.status(404).json({ message: "Film nije pronađen" });
     }
 
-    movie.votes += 1;
-    movie.rating = (movie.rating * (movie.votes - 1) + rating) / movie.votes;
-    await movie.save();
+    // Remove movie from all Cinema documents
+    await Cinema.updateMany(
+      { "movies.movieId": id },
+      { $pull: { movies: { movieId: id } } },
+      { session }
+    );
 
-    res.json({ message: "Ocena sačuvana!", newRating: movie.rating });
+    // Delete all showtimes for this movie
+    await Showtime.deleteMany({ movie: id }, { session });
+
+    // Delete all tickets associated with the movie
+    await Ticket.deleteMany({ movieId: id }, { session });
+
+    // Commit transaction
+    await session.commitTransaction();
+    res.json({ message: "Film, bioskopske reference, karte i projekcije uspešno obrisani" });
+
   } catch (error) {
-    console.error("Greška pri ocenjivanju filma:", error);
-    res.status(500).json({ message: "Greška na serveru!" });
+    await session.abortTransaction();
+    console.error("Greška pri brisanju filma:", error);
+    res.status(500).json({ message: "Greška pri brisanju filma" });
+  } finally {
+    session.endSession();
   }
 });
 
