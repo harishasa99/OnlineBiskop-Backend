@@ -231,11 +231,6 @@ router.delete("/:id", authMiddleware, protectAdmin, async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Validate MongoDB ObjectId
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Neispravan ID formata" });
-    }
-
     // Find and delete the movie
     const movie = await Movie.findByIdAndDelete(id, { session });
     if (!movie) {
