@@ -231,26 +231,25 @@ router.delete("/:id", authMiddleware, protectAdmin, async (req, res) => {
   const { id } = req.params;
 
   try {
+
     // Find and delete the movie
-    const movie = await Movie.findByIdAndDelete(id, { session });
+    const movie = await Movie.findByIdAndDelete(id);
     if (!movie) {
       return res.status(404).json({ message: "Film nije pronađen" });
     }
 
-    // Remove movie from all Cinema documents
+    // Remove the movie reference from all Cinema documents
     await Cinema.updateMany(
       { "movies.movieId": id },
-      { $pull: { movies: { movieId: id } } },
-      { session }
+      { $pull: { movies: { movieId: id } } }
     );
 
     // Delete all showtimes for this movie
-    await Showtime.deleteMany({ movie: id }, { session });
+    await Showtime.deleteMany({ movie: id });
 
     // Delete all tickets associated with the movie
-    await Ticket.deleteMany({ movieId: id }, { session });
+    await Ticket.deleteMany({ movieId: id });
 
-    // Commit transaction
     res.json({ message: "Film, bioskopske reference, karte i projekcije uspešno obrisani" });
 
   } catch (error) {
