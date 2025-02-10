@@ -229,7 +229,6 @@ router.put(
  */
 router.delete("/:id", authMiddleware, protectAdmin, async (req, res) => {
   const { id } = req.params;
-  const session = await mongoose.startSession(); // Start transaction
 
   try {
     // Validate MongoDB ObjectId
@@ -240,7 +239,6 @@ router.delete("/:id", authMiddleware, protectAdmin, async (req, res) => {
     // Find and delete the movie
     const movie = await Movie.findByIdAndDelete(id, { session });
     if (!movie) {
-      await session.abortTransaction();
       return res.status(404).json({ message: "Film nije pronađen" });
     }
 
