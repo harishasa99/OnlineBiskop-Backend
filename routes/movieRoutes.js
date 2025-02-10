@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const Movie = require("../models/Movie");
 const Cinema = require("../models/Cinema");
+const Showtime = require("../models/Showtime");
 
 const {
   authMiddleware,
