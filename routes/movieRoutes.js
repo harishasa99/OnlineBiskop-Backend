@@ -3,6 +3,7 @@ const multer = require("multer");
 const Movie = require("../models/Movie");
 const Cinema = require("../models/Cinema");
 const Showtime = require("../models/Showtime");
+const Ticket = require("../models/Ticket");
 
 const {
   authMiddleware,
