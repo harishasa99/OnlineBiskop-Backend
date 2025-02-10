@@ -230,7 +230,6 @@ router.put(
 router.delete("/:id", authMiddleware, protectAdmin, async (req, res) => {
   const { id } = req.params;
   const session = await mongoose.startSession(); // Start transaction
-  session.startTransaction();
 
   try {
     // Validate MongoDB ObjectId
@@ -259,15 +258,11 @@ router.delete("/:id", authMiddleware, protectAdmin, async (req, res) => {
     await Ticket.deleteMany({ movieId: id }, { session });
 
     // Commit transaction
-    await session.commitTransaction();
     res.json({ message: "Film, bioskopske reference, karte i projekcije uspešno obrisani" });
 
   } catch (error) {
-    await session.abortTransaction();
     console.error("Greška pri brisanju filma:", error);
     res.status(500).json({ message: "Greška pri brisanju filma" });
-  } finally {
-    session.endSession();
   }
 });
 
