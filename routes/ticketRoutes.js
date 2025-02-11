@@ -6,6 +6,17 @@ const { authMiddleware } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+// format showtime before saving it
+const formatDatetime = (datetimeFromReq) => {
+  const date = new Date(datetimeFromReq);
+  date.setHours(date.getHours() + 1); // Adjust timezone if needed
+  
+  // Format as 'YYYY-MM-DD HH:MM'
+  const formattedShowtime = date.toISOString().slice(0, 16).replace('T', ' ');
+  
+  return formattedShowtime
+}
+
 // 🎟️ Kupovina karata
 const purchaseTicket = async (req, res) => {
   try {
@@ -19,7 +30,7 @@ const purchaseTicket = async (req, res) => {
 
     let existingShowtime = await Showtime.findOne({
       cinema: cinemaId,
-      datetime: showtime,
+      datetime: formatDatetime(showtime),
     });
 
     if (!existingShowtime) {
@@ -27,7 +38,7 @@ const purchaseTicket = async (req, res) => {
       existingShowtime = await Showtime.create({
         movie: movieId,
         cinema: cinemaId,
-        datetime: showtime,
+        datetime: formatDatetime(showtime),
         bookedSeats: [],
       });
 
