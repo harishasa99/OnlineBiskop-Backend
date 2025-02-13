@@ -124,7 +124,7 @@ router.get("/:cinemaId/movies/:showtime", async (req, res) => {
         .json({ message: "Film nije pronađen u ovom bioskopu!" });
     }
 
-    const movie = await Movie.findById(movieEntry.movieId); // Učitaj ceo film
+    // Moras da uzmes i showtime id
 
     console.log("📌 API vraća film:", movie); // ✅ Provera da li postoji `image`
 
